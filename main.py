@@ -4,6 +4,9 @@ from tkinter import BOTH, ttk
 from turtle import bgcolor
 import random
 
+from algorithms.bubble_sort import bubble_sort
+from algorithms.selection_sort import selection_sort
+
 algo_list = ["Bubble Sort","Insertion Sort","Selection Sort"]
 speed_list = ["Slow","Medium","Fast"]
 
@@ -14,13 +17,15 @@ window_y = 50
 window = tk.Tk()
 window.title("Algorithm Visualizer")
 
-data=[]
+
 algorithm = tk.StringVar()
 speed = tk.StringVar()
 input_count =tk.IntVar()
+data=[0]* input_count.get()
+
 
 #main functions
-def drawGraph():
+def drawGraph(data,colors):
     global graph_canvas
     graph_canvas.delete("all")
     no_of_inputs= input_count.get()
@@ -34,7 +39,7 @@ def drawGraph():
         y1=c_height
         y2=one_unit_height*(max(data)-v)
 
-        graph_canvas.create_rectangle(x1,y1,x2,y2,fill="black",outline="yellow")
+        graph_canvas.create_rectangle(x1,y1,x2,y2,fill=colors[i],outline="yellow")
         textX = x2-(column_width/2)
         textY=y2-10
         graph_canvas.create_text(textX,y1-12,text=str(data[i]),fill="blue",font=("Roboto 8 bold"))
@@ -48,17 +53,24 @@ def generateRandom(n=input_count):
     for i in range(0,n.get()):
         random_value = random.randint(1,100)
         data.append(random_value)
-    drawGraph()
+    drawGraph(data,["black" if x%2==0 else "green" if x ==0 else "brown" for x in range(len(data))])
     print(data)
 #command functions
 def sort(algo=algorithm,spd=speed):
-    drawGraph()
+    speedDict = {"Slow":0.9,"Medium":0.09,"Fast":0.009}
+    algoDict = {"Bubble Sort":bubble_sort,"Selection Sort":selection_sort}
+    sort_fn = algoDict[algorithm.get()]
+    sort_fn(data,speedDict[spd.get()],drawGraph)
     #print("Sort",algo.get()," / Speed",spd.get(),input_count.get())
 
 def resizeCanvas(e):
     global graph_canvas
-    print("Resize canvas",e.width,e.height)
-    graph_canvas.config(width=e.width,height=e.height)
+    g_width = graph_canvas.winfo_width()
+    g_height = graph_canvas.winfo_height()
+    print("Resize canvas",window.winfo_width(),g_width,g_height)
+    if(e.type != 22 and g_width == window.winfo_width() and len(data)>0):
+        drawGraph()
+    graph_canvas.config(width=window.winfo_width(),height=e.height)
 
 # get the screen dimension
 screen_width = window.winfo_screenwidth()
@@ -74,6 +86,7 @@ window.resizable(True,True)
 form_frame = tk.Frame(window,height=400,background="Red")
 #form_frame.grid(row=0,column=0,sticky="ew")
 form_frame.pack(side=tk.TOP,fill=tk.BOTH)
+
 # combobox
 
 #algorithm choice box
@@ -83,7 +96,7 @@ algo_box = ttk.Combobox(form_frame,textvariable=algorithm,values=algo_list,state
 algo_box.grid(row=0,column=2,pady=5)
 algo_box.current(0)
 #speed choice box
-speed_label = tk.Label(form_frame,text="Algorithm")
+speed_label = tk.Label(form_frame,text="Speed")
 speed_label.grid(row=1,column=0,sticky="w",pady=5)
 speed_box = ttk.Combobox(form_frame,textvariable=speed,values=speed_list,state="readonly")
 speed_box.grid(row=1,column=2,pady=5)
