@@ -21,30 +21,30 @@ input_count =tk.IntVar()
 
 #main functions
 def drawGraph():
-
-    no_of_inputs= input_count.get()
     global graph_canvas
     graph_canvas.delete("all")
+    no_of_inputs= input_count.get()
     c_height=graph_canvas.winfo_height()
     c_width =graph_canvas.winfo_width()
-    offset=4
     column_width = c_width/no_of_inputs
     one_unit_height = c_height/max(data)
-    data_for_graph = [i/max(data) for i in data]
-    print(data_for_graph,one_unit_height)
     for i,v in enumerate(data):
         x1=column_width*i
         x2=x1+column_width
         y1=c_height
-        y2=one_unit_height*v
+        y2=one_unit_height*(max(data)-v)
 
         graph_canvas.create_rectangle(x1,y1,x2,y2,fill="black",outline="yellow")
+        textX = x2-(column_width/2)
+        textY=y2-10
+        graph_canvas.create_text(textX,y1-12,text=str(data[i]),fill="blue",font=("Roboto 8 bold"))
     window.update_idletasks()
 
 
 def generateRandom(n=input_count):
-
     global data
+    data=[]
+
     for i in range(0,n.get()):
         random_value = random.randint(1,100)
         data.append(random_value)
@@ -59,6 +59,7 @@ def resizeCanvas(e):
     global graph_canvas
     print("Resize canvas",e.width,e.height)
     graph_canvas.config(width=e.width,height=e.height)
+
 # get the screen dimension
 screen_width = window.winfo_screenwidth()
 screen_height = window.winfo_screenheight()
@@ -102,11 +103,10 @@ generate_btn = ttk.Button(form_frame,text="Generate",command=generateRandom)
 generate_btn.grid(row=3,column=1,sticky="w",pady=5)
 
 #graph frame
-graph_frame = tk.Frame(window,background="blue",height=500)
+graph_frame = tk.Frame(window,background="gray",height=500)
 #graph_frame.grid(row=1,sticky="ew")
 graph_frame.pack(side=tk.BOTTOM,fill=tk.BOTH,expand=True)
-graph_label = tk.Label(graph_frame,text="Graph")
-graph_label.pack()
+
 #graph canvas
 graph_canvas = tk.Canvas(graph_frame,height=450,width=550,bg="white")
 graph_canvas.bind('<Configure>',resizeCanvas)
