@@ -5,9 +5,11 @@ from turtle import bgcolor
 import random
 
 from algorithms.bubble_sort import bubble_sort
+from algorithms.insertion_sort import insertion_sort
+from algorithms.merge_sort import merge_sort
 from algorithms.selection_sort import selection_sort
 
-algo_list = ["Bubble Sort","Insertion Sort","Selection Sort"]
+algo_list = ["Bubble Sort","Insertion Sort","Selection Sort","Merge Sort"]
 speed_list = ["Slow","Medium","Fast"]
 
 window_width = 700
@@ -49,18 +51,26 @@ def drawGraph(data,colors):
 def generateRandom(n=input_count):
     global data
     data=[]
-
     for i in range(0,n.get()):
         random_value = random.randint(1,100)
         data.append(random_value)
-    drawGraph(data,["black" if x%2==0 else "green" if x ==0 else "brown" for x in range(len(data))])
+    drawGraph(data,["black" for x in range(len(data))])
     print(data)
 #command functions
 def sort(algo=algorithm,spd=speed):
-    speedDict = {"Slow":0.9,"Medium":0.09,"Fast":0.009}
-    algoDict = {"Bubble Sort":bubble_sort,"Selection Sort":selection_sort}
+    speedDict = {"Slow":1.3,"Medium":0.8,"Fast":0.08}
+    algoDict = {
+                "Bubble Sort":bubble_sort,
+                "Selection Sort":selection_sort,
+                "Insertion Sort":insertion_sort,
+                "Merge Sort":merge_sort,
+                }
     sort_fn = algoDict[algorithm.get()]
-    sort_fn(data,speedDict[spd.get()],drawGraph)
+    if(algorithm.get() == "Merge Sort") :
+        merge_result = sort_fn(data,0,len(data)-1,speedDict[spd.get()],drawGraph)
+        print("Merge Result",merge_result)
+    else :
+        sort_fn(data,speedDict[spd.get()],drawGraph)
     #print("Sort",algo.get()," / Speed",spd.get(),input_count.get())
 
 def resizeCanvas(e):
