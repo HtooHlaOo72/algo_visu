@@ -1,9 +1,11 @@
 import time
-def insertion_sort(data,speed,fn):
+def insertion_sort(data,speed,fn,*arg):
+    inc_step=arg[0]
     for i in range(1,len(data)):
         temp=data[i]
         key=i-1
         while key>=0 and temp<data[key]:
+            inc_step()
             data[key+1]=data[key]
             key-=1
         data[key+1]=temp

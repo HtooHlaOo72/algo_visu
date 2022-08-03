@@ -1,8 +1,10 @@
+from multiprocessing.dummy import Array
 from pickle import TRUE
 import tkinter as tk
 from tkinter import BOTH, ttk
 from turtle import bgcolor
 import random
+from numpy import array
 
 from algorithms.bubble_sort import bubble_sort
 from algorithms.insertion_sort import insertion_sort
@@ -24,6 +26,7 @@ algorithm = tk.StringVar()
 speed = tk.StringVar()
 input_count =tk.IntVar()
 step_count = tk.IntVar()
+data_cache = []
 data=[0]* input_count.get()
 
 
@@ -51,16 +54,25 @@ def drawGraph(data,colors):
 
 def generateRandom(n=input_count):
     global data
+    global data_cache
     step_count.set(0)
     data=[]
     for i in range(0,n.get()):
         random_value = random.randint(1,100)
         data.append(random_value)
-    #test data
-    data=[1,2,3,4,5,10,9,8,7,6,5]
+    #cache
+    data_cache = [x for x in data]
+    print("Cache",data_cache)
     drawGraph(data,["black" for x in range(len(data))])
 def increase_step():
     step_count.set(step_count.get()+1)
+
+def back_to_previous():
+    global data
+    data = [x for x in data_cache]
+    step_count.set(0)
+    drawGraph(data,["black" for x in range(len(data))])
+
 #command functions
 def sort(algo=algorithm,spd=speed):
     speedDict = {"Slow":1.3,"Medium":0.8,"Fast":0.08}
@@ -72,8 +84,7 @@ def sort(algo=algorithm,spd=speed):
                 }
     sort_fn = algoDict[algorithm.get()]
     if(algorithm.get() == "Merge Sort") :
-        merge_result = sort_fn(data,0,len(data)-1,speedDict[spd.get()],drawGraph)
-        print("Merge Result",merge_result)
+        sort_fn(data,0,len(data)-1,speedDict[spd.get()],drawGraph,increase_step)
     else :
         sort_fn(data,speedDict[spd.get()],drawGraph,increase_step)
     #print("Sort",algo.get()," / Speed",spd.get(),input_count.get())
@@ -86,6 +97,7 @@ def resizeCanvas(e):
     if(e.type != 22 and g_width == window.winfo_width() and len(data)>0):
         drawGraph()
     graph_canvas.config(width=window.winfo_width(),height=e.height)
+
 
 # get the screen dimension
 screen_width = window.winfo_screenwidth()
@@ -135,6 +147,9 @@ sort_btn.grid(row=3,column=2,sticky="w",pady=5)
 
 generate_btn = ttk.Button(form_frame,text="Generate",command=generateRandom)
 generate_btn.grid(row=3,column=1,sticky="w",pady=5)
+
+cache_btn = ttk.Button(form_frame,text="Previous",command=back_to_previous)
+cache_btn.grid(row=3,column=3,sticky="w",pady=5)
 
 #graph frame
 graph_frame = tk.Frame(window,background="gray",height=500)
