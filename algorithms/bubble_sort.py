@@ -7,7 +7,7 @@ def bubble_sort(data,speed,fn,*arg):
         for j in range(len(data)-i-1):
             if data[j]>data[j+1]:
                 data[j],data[j+1] = data[j+1],data[j]
-                inc_step()
+            inc_step()
             fn(data,["blue" if x==j else "green" if x==j+1 else "red" if x>=len(data)-i else  "black" for x in range(len(data))])
             time.sleep(speed)
     fn(data,["red" for x in range(len(data))])
