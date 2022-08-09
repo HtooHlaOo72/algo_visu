@@ -5,6 +5,7 @@ def bubble_sort(data,speed,fn,*arg):
     inc_step=arg[0]
     for i in range(length-1):
         for j in range(len(data)-i-1):
+            print(speed,"Speed in algo")
             if data[j]>data[j+1]:
                 data[j],data[j+1] = data[j+1],data[j]
             inc_step()

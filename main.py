@@ -35,7 +35,6 @@ data=[0]* input_count.get()
 
 #main functions
 def drawGraph(data,colors):
-    print("Draw Graph")
     global graph_canvas
     graph_canvas.delete("all")
     no_of_inputs= input_count.get()
@@ -49,13 +48,13 @@ def drawGraph(data,colors):
         y1=c_height
         y2=one_unit_height*(max(data)-v)
 
-        graph_canvas.create_speed_box = ttk.Combobox(form_frame,textvariable=speed,values=speed_list,state="readonly")
-# speed_box.grid(row=1,column=2,pady=5)
-# speed_box.current(0)rectangle(x1,y1,x2,y2,fill=colors[i],outline="yellow")
+        graph_canvas.create_rectangle(x1,y1,x2,y2,fill=colors[i],outline="yellow")
         textX = x2-(column_width/2)
         textY=y2-10
         graph_canvas.create_text(textX,y1-12,text=str(data[i]),fill="blue",font=("Roboto 8 bold"))
     window.update_idletasks()
+# speed_box.grid(row=1,column=2,pady=5)
+# speed_box.current(0)rectangle(x1,y1,x2,y2,fill=colors[i],outline="yellow")
 
 
 def generateRandom(n=input_count):
@@ -68,8 +67,8 @@ def generateRandom(n=input_count):
         data.append(random_value)
     #cache
     data_cache = [x for x in data]
-    print("Cache",data_cache)
     drawGraph(data,["black" for x in range(len(data))])
+
 def increase_step():
     step_count.set(step_count.get()+1)
 
@@ -80,7 +79,9 @@ def back_to_previous():
     drawGraph(data,["black" for x in range(len(data))])
 
 #command functions
-def sort(algo=algorithm,spd=speed_num.get()*0.001):
+def sort():
+    algo=algorithm
+    spd=(100-speed_num.get())*0.01
     if len(data)<=0:
         messagebox.showwarning("Instruction","Generate some numbers")
         return
@@ -92,10 +93,10 @@ def sort(algo=algorithm,spd=speed_num.get()*0.001):
                 "Merge Sort":merge_sort,
                 }
     sort_fn = algoDict[algorithm.get()]
-    if(algorithm.get() == "Merge Sort") :
-        sort_fn(data,0,len(data)-1,spd.get(),drawGraph,increase_step)
+    if(algorithm.get() == "Merge Sort"):
+        sort_fn(data,0,len(data)-1,spd,drawGraph,increase_step)
     else :
-        sort_fn(data,spd.get(),drawGraph,increase_step)
+        sort_fn(data,spd,drawGraph,increase_step)
     #print("Sort",algo.get()," / Speed",spd.get(),input_count.get())
 
 def resizeCanvas(e):
@@ -103,7 +104,6 @@ def resizeCanvas(e):
     global data
     g_width = graph_canvas.winfo_width()
     g_height = graph_canvas.winfo_height()
-    print("Resize canvas",window.winfo_width(),g_width,g_height)
     if(e.type != 22 and g_width == window.winfo_width() and len(data)>0):
         drawGraph(data,["black" for x in range(len(data))])
     graph_canvas.config(width=window.winfo_width(),height=e.height)
