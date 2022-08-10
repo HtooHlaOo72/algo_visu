@@ -1,6 +1,7 @@
 from email import message
 from multiprocessing.dummy import Array
 from pickle import TRUE
+from threading import Thread, active_count
 import tkinter as tk
 from tkinter import BOTH, ttk
 from turtle import bgcolor
@@ -80,7 +81,10 @@ def back_to_previous():
 
 #command functions
 def sort():
-    algo=algorithm
+    global algorithm
+    global speed_num
+    if(active_count()>1):
+        return
     spd=(100-speed_num.get())*0.01
     if len(data)<=0:
         messagebox.showwarning("Instruction","Generate some numbers")
@@ -93,11 +97,14 @@ def sort():
                 "Merge Sort":merge_sort,
                 }
     sort_fn = algoDict[algorithm.get()]
-    if(algorithm.get() == "Merge Sort"):
-        sort_fn(data,0,len(data)-1,spd,drawGraph,increase_step)
-    else :
-        sort_fn(data,spd,drawGraph,increase_step)
-    #print("Sort",algo.get()," / Speed",spd.get(),input_count.get())
+    sort_thread = Thread(target=sort_fn,args=(data,speed_num,drawGraph,increase_step))
+    
+    # if(algorithm.get() == "Merge Sort"):
+    #     sort_fn(data,0,len(data)-1,spd,drawGraph,increase_step)
+    # else :
+    #     sort_fn(data,spd,drawGraph,increase_step)
+    sort_thread.start()
+
 
 def resizeCanvas(e):
     global graph_canvas
