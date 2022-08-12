@@ -1,7 +1,7 @@
 from email import message
 from multiprocessing.dummy import Array
 from pickle import TRUE
-from threading import Thread, active_count
+from threading import Condition, Thread, active_count, main_thread
 import tkinter as tk
 from tkinter import BOTH, ttk
 from turtle import bgcolor
@@ -30,6 +30,10 @@ input_count =tk.IntVar()
 step_count = tk.IntVar()
 speed_num = tk.DoubleVar()
 speed_num.set(0.0)
+control = {
+        "condition":Condition(),
+        "state":tk.BooleanVar()
+    }
 data_cache = []
 data=[0]* input_count.get()
 
@@ -72,17 +76,47 @@ def generateRandom(n=input_count):
 
 def increase_step():
     step_count.set(step_count.get()+1)
+def notify(c):
+    while (not control["state"].get()): 
+        c.acquire()
+        c.notify()
+        c.release()
 
 def back_to_previous():
     global data
     data = [x for x in data_cache]
     step_count.set(0)
     drawGraph(data,["black" for x in range(len(data))])
+def pause():
+    global control
+    control['state'].set(not control["state"].get())
+    print(control["state"].get())
+    if(not control["state"].get()):
+        print("pause thread",control["state"].get())
+        pause_thread = Thread(target=pause_control)
+        pause_thread.start()
+def pause_control():
+    print("Pause Control")
+    global control
+    if(not control["state"].get()):
+        control["condition"].acquire()
+        control["condition"].notify_all()
+        control["condition"].release()
+    # global control
+    # noti = None
+    # if(not control["state"].get()):
+    #     noti = Thread(target=notify,args=(control["condition"]))
+    #     noti.start()
+    #     control["state"].set(True)
+    # else:
+    #     control["state"].set(False)
+    # noti = None
 
 #command functions
 def sort():
     global algorithm
     global speed_num
+    global control
     if(active_count()>1):
         return
     spd=(100-speed_num.get())*0.01
@@ -97,12 +131,11 @@ def sort():
                 "Merge Sort":merge_sort,
                 }
     sort_fn = algoDict[algorithm.get()]
-    sort_thread = Thread(target=sort_fn,args=(data,speed_num,drawGraph,increase_step))
-    
-    # if(algorithm.get() == "Merge Sort"):
-    #     sort_fn(data,0,len(data)-1,spd,drawGraph,increase_step)
-    # else :
-    #     sort_fn(data,spd,drawGraph,increase_step)
+    sort_thread = None
+    if(algorithm.get() == "Merge Sort"):
+        sort_thread = Thread(target=sort_fn,args=(data,0,len(data)-1,speed_num,drawGraph,increase_step,control))
+    else :
+        sort_thread = Thread(target=sort_fn,args=(data,speed_num,drawGraph,increase_step,control))
     sort_thread.start()
 
 
@@ -167,7 +200,7 @@ sort_btn.grid(row=3,column=2,sticky="w",pady=5)
 generate_btn = ttk.Button(form_frame,text="Generate",command=generateRandom)
 generate_btn.grid(row=3,column=1,sticky="w",pady=5)
 
-cache_btn = ttk.Button(form_frame,text="Previous",command=back_to_previous)
+cache_btn = ttk.Button(form_frame,text="Previous",command=pause)
 cache_btn.grid(row=3,column=3,sticky="w",pady=5)
 
 #graph frame
