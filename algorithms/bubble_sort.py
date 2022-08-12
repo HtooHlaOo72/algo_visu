@@ -14,7 +14,7 @@ def bubble_sort(data,speed,fn,*arg):
             if data[j]>data[j+1]:
                 data[j],data[j+1] = data[j+1],data[j]
             inc_step()
-            fn(data,["blue" if x==j else "green" if x==j+1 else "red" if x>=len(data)-i else  "black" for x in range(len(data))])
+            fn(data,["#DE12EF" if x==j else "#125CEF" if x==j+1 else "red" if x>=len(data)-i else  "#1D0B3B" for x in range(len(data))])
             time.sleep(calculate_speed(speed))
     control["condition"].release()
     fn(data,["red" for x in range(len(data))])
