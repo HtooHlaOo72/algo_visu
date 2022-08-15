@@ -93,9 +93,9 @@ def sort(algo=algorithm,spd=speed_num.get()*0.001):
                 }
     sort_fn = algoDict[algorithm.get()]
     if(algorithm.get() == "Merge Sort") :
-        sort_fn(data,0,len(data)-1,spd.get(),drawGraph,increase_step)
+        sort_fn(data,0,len(data)-1,speedDict[spd.get()],drawGraph,increase_step)
     else :
-        sort_fn(data,spd.get(),drawGraph,increase_step)
+        sort_fn(data,speedDict[spd.get()],drawGraph,increase_step)
     #print("Sort",algo.get()," / Speed",spd.get(),input_count.get())
 
 def resizeCanvas(e):
@@ -141,12 +141,12 @@ algo_box.current(0)
 #speed choice box
 speed_label = tk.Label(form_frame,text="Speed")
 speed_label.grid(row=1,column=0,sticky="w",pady=5)
-# speed_box = ttk.Combobox(form_frame,textvariable=speed,values=speed_list,state="readonly")
-# speed_box.grid(row=1,column=2,pady=5)
-# speed_box.current(0)
-speed_slide = Scale(form_frame,from_=0,to=100,orient="horizontal",variable=speed_num)
-speed_slide.grid(row=1,column=2,pady=5)
-speed_slide.set(10)
+speed_box = ttk.Combobox(form_frame,textvariable=speed,values=speed_list,state="readonly")
+speed_box.grid(row=1,column=2,pady=5)
+speed_box.current(0)
+# speed_slide = Scale(form_frame,from_=0,to=100,orient="horizontal",variable=speed_num)
+# speed_slide.grid(row=1,column=2,pady=5)
+# speed_slide.set(10)
 #no of input box
 ninput_label = tk.Label(form_frame,text="No of inputs")
 ninput_label.grid(row=2,column=0,sticky="w",pady=5)
