@@ -10,10 +10,12 @@ from turtle import bgcolor
 import random
 from tkinter import messagebox
 from algorithms.bubble_sort import bubble_sort
+from algorithms.counting_sort import counting_sort
 from algorithms.heap_sort import heap_sort
 from algorithms.insertion_sort import insertion_sort
 from algorithms.merge_sort import merge_sort
 from algorithms.selection_sort import selection_sort
+from algorithms.quick_sort import quick_sort
 from tkinter import Scale
 
 
@@ -26,7 +28,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 NavigationToolbar2Tk)
 
 
-algo_list = ["Bubble Sort", "Insertion Sort", "Selection Sort", "Merge Sort","Heap Sort"]
+algo_list = ["Bubble Sort", "Insertion Sort", "Selection Sort", "Merge Sort","Heap Sort","Counting Sort","Quick Sort"]
 speed_list = ["Slow", "Medium", "Fast"]
 
 window_width = 700
@@ -124,7 +126,7 @@ def open_popup():
     plot1 = fig.add_subplot(132)
     plot1.set_xlabel("Number of input")
     plot1.set_ylabel("Number of operations")
-    colors = ["red","black","blue","yellow","green"]
+    colors = ["red","black","blue","yellow","green","pink","purple"]
     for i,v in enumerate(algo_list):
         algo = get_records(v)
         x,y = get_xandy(algo)
@@ -154,6 +156,7 @@ def get_xandy(l):
 def sort():
     global algorithm
     global speed
+
     if len(data) <= 0:
         messagebox.showwarning("Instruction", "Generate some numbers")
         return
@@ -164,11 +167,12 @@ def sort():
         "Insertion Sort": insertion_sort,
         "Merge Sort": merge_sort,
         "Heap Sort":heap_sort,
+        "Counting Sort":counting_sort,
+        "Quick Sort":quick_sort,
     }
-    
+
     sort_fn = algoDict[algorithm.get()]
-    
-    if (algorithm.get() == "Merge Sort"):
+    if (algorithm.get() == "Merge Sort" or algorithm.get() == "Quick Sort"):
         sort_fn(data, 0, len(data)-1,speedDict[speed.get()], drawGraph, increase_step)
     else:
         sort_fn(data, speedDict[speed.get()], drawGraph, increase_step)
