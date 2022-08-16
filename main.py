@@ -9,12 +9,21 @@ from tkinter import BOTH, ttk
 from turtle import bgcolor
 import random
 from tkinter import messagebox
-from matplotlib.ft2font import HORIZONTAL
 from algorithms.bubble_sort import bubble_sort
 from algorithms.insertion_sort import insertion_sort
 from algorithms.merge_sort import merge_sort
 from algorithms.selection_sort import selection_sort
 from tkinter import Scale
+
+
+#plot_libraries
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, 
+NavigationToolbar2Tk)
+
 
 algo_list = ["Bubble Sort", "Insertion Sort", "Selection Sort", "Merge Sort"]
 speed_list = ["Slow", "Medium", "Fast"]
@@ -25,6 +34,8 @@ window_x = 50
 window_y = 50
 window = tk.Tk()
 window.title("Algorithm Visualizer")
+
+
 
 algorithm = tk.StringVar()
 speed = tk.StringVar()
@@ -38,7 +49,7 @@ step_count = tk.IntVar()
 # }
 data_cache = []
 data = [0] * input_count.get()
-
+records = []
 # for fonts;
 font.families()
 Desired_font = font.Font(family="Comic Sans MS", size=12, weight="bold")
@@ -49,7 +60,7 @@ Heading_font = font.Font(family="Comic Sans MS", size=20, weight="bold")
 def drawGraph(data, colors):
     global graph_canvas
     graph_canvas.delete("all")
-    no_of_inputs = input_count.get()
+    no_of_inputs = len(data)
     c_height = graph_canvas.winfo_height()
     c_width = graph_canvas.winfo_width()
     column_width = c_width/no_of_inputs
@@ -87,12 +98,15 @@ def generateRandom(n=input_count):
 def increase_step():
     step_count.set(step_count.get()+1)
 
+# plot
 
-def notify(c):
-    while (not control["state"].get()):
-        c.acquire()
-        c.notify()
-        c.release()
+
+
+# def notify(c):
+#     while (not control["state"].get()):
+        # c.acquire()
+        # c.notify()
+        # c.release()
 
 
 def back_to_previous():
@@ -101,40 +115,41 @@ def back_to_previous():
     step_count.set(0)
     drawGraph(data, ["#1D0B3B" for x in range(len(data))])
 
+def open_popup():
+    top= Toplevel(window)
+    top.geometry("900x600")
+    top.title("Complexity Plot")
+    fig = Figure(figsize=(10,10),dpi=100)
+    plot1 = fig.add_subplot(132)
+    plot1.set_xlabel("Number of input")
+    plot1.set_ylabel("Number of operations")
+    colors = ["red","black","blue","yellow"]
+    for i,v in enumerate(algo_list):
+        algo = get_records(v)
+        x,y = get_xandy(algo)
+        x.insert(0,0)
+        y.insert(0,0)
+        print(i,v)
+        print("X and Y",x,y)
+        plot1.plot(x,y,c=colors[i],label=v)
+        plot1.legend(bbox_to_anchor=(1,0.5),loc="center left")
+        canvas = FigureCanvasTkAgg(fig,master=top)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
 
-# def pause():
-#     global control
-#     control['state'].set(not control["state"].get())
-#     print(control["state"].get())
-#     if (not control["state"].get()):
-#         pause_btn['text'] = "Pause"
-#         print("pause thread", control["state"].get())
-#         pause_thread = Thread(target=pause_control)
-#         pause_thread.start()
-#     else:
-#         pause_btn['text'] = "Resume"
+def insertRecord(algo_name,no_input,no_step):
+    global records
+    records.append({"algorithm":algo_name,"no_input":no_input,"steps":no_step})
 
-
-# def pause_control():
-#     print("Pause Control")
-#     global control
-#     if (not control["state"].get()):
-#         control["condition"].acquire()
-#         control["condition"].notify_all()
-#         control["condition"].release()
-#     # global control
-#     # noti = None
-#     # if(not control["state"].get()):
-#     #     noti = Thread(target=notify,args=(control["condition"]))
-#     #     noti.start()
-#     #     control["state"].set(True)
-#     # else:
-#     #     control["state"].set(False)
-#     # noti = None
-
-# command functions
-
-
+def get_records(x):
+    global records
+    rc = list(filter(lambda n:n["algorithm"]==x,records))
+    return rc
+def get_xandy(l):
+    x = list(map(lambda n:n["no_input"],l))
+    y = list(map(lambda n:n["steps"],l))
+    return x,y
+    
 def sort():
     global algorithm
     global speed
@@ -150,13 +165,14 @@ def sort():
         "Insertion Sort": insertion_sort,
         "Merge Sort": merge_sort,
     }
+    
     sort_fn = algoDict[algorithm.get()]
     
     if (algorithm.get() == "Merge Sort"):
         sort_fn(data, 0, len(data)-1,speedDict[speed.get()], drawGraph, increase_step)
     else:
         sort_fn(data, speedDict[speed.get()], drawGraph, increase_step)
-
+    insertRecord(algorithm.get(),len(data),step_count.get())
 
 def resizeCanvas(e):
     global graph_canvas
@@ -216,7 +232,7 @@ speed_label.grid(row=2, column=0, sticky="w", pady=5)
 speed_box = ttk.Combobox(form_frame, textvariable=speed,
                         values=speed_list, state="readonly", style="style.TCombobox")
 speed_box.grid(row=1, column=2, pady=5)
-speed_box.current(0)
+speed_box.current(2)
 speed_box.grid(row=2, column=2,pady=5)
 # no of input box
 ninput_label = tk.Label(form_frame, text="No of inputs",
@@ -231,8 +247,8 @@ ninput_box.grid(row=3, column=2, sticky='w', pady=5)
 generate_btn = ttk.Button(form_frame, text="Generate", command=generateRandom)
 generate_btn.grid(row=4, column=2, sticky="w", pady=5)
 
-# pause_btn = ttk.Button(form_frame, text="Pause", command=pause)
-# pause_btn.grid(row=4, column=3, sticky="w", pady=5)
+show_plot_btn = ttk.Button(form_frame, text="Show Plot", command=open_popup)
+show_plot_btn.grid(row=4, column=3, sticky="w", pady=5)
 
 sort_btn = ttk.Button(form_frame, text="Sort", command=sort)
 sort_btn.grid(row=5, column=2, sticky="w", pady=5)
@@ -259,6 +275,9 @@ graph_canvas.bind('<Configure>', resizeCanvas)
 graph_canvas.pack()
 # set the position of the window to the center of the screen
 window.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+
+
+
 
 # run the window
 window.mainloop()
