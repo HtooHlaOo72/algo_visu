@@ -7,11 +7,12 @@ def heapify(data, n, i, speed,fn, inc_step):
     right = 2*i+2
     if left < n and data[i] < data[left]:
         largest = left
-
+        inc_step()
     if right < n and data[largest] < data[right]:
         largest = right
-
+        inc_step()
     if largest != i:
+        inc_step()
         data[i], data[largest] = data[largest], data[i]
         heapify(data, n, largest, speed,fn, inc_step)
 

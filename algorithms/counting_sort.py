@@ -11,7 +11,7 @@ def counting_sort(data, speed,fn, inc_step):
         for j in range(count[i]):
             inc_step()
             data[k] = i
-            fn(data, ["blue" for x in range(len(data))] )
+            fn(data, ["blue" if x==i else "green" if x==j else "grey" for x in range(len(data))] )
             time.sleep(speed)
             k += 1
 
